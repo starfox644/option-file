@@ -1,8 +1,14 @@
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Player extends OptionFileElement {
     public Player(int index) {
         super(index);
+        stats = new HashMap<>();
+        for (PlayerStat playerStat: Stats.ability99) {
+            stats.put(playerStat, 0);
+        }
     }
 
     @Override
@@ -12,73 +18,82 @@ public class Player extends OptionFileElement {
             name = "<empty>";
             // bounds check
         else if(getIndex() < 0 || getIndex() >= totalPlayers && getIndex() < firstEditIndex || getIndex() > lastEditIndex)
-        {
             name = "<ERROR>";
-        }
+
         else
         {
             // players begin offset
-            int begin;
-            // player offset
-            int offset;
-            // edited player
-            if(getIndex() >= firstEditIndex)
-            {
-                // edited players begin offset
-                begin = beginOffsetEdited;
-                // offset relative to the edited players beginning
-                offset = (getIndex() - firstEditIndex) * size;
-            }
-            else
-            {
-                begin = beginOffset;
-                offset = getIndex() * size;
-            }
-            byte chars[] = new byte[nameTotalBytes];
-            int playerOffset = begin + offset;
-            // copies name characters (16 characters, 32 bytes in UTF16)
-            System.arraycopy(optionFile.optionFileData, playerOffset, chars, 0, nameTotalBytes);
-            boolean end = false;
-            // name length computation, in searching for the first null character (2 '00' in UTF-16)
-            int length = 0;
-            for(int i = 0; !end && i < chars.length - 1; i += 2)
-            {
-                if(chars[i] == 0 && chars[i + 1] == 0)
-                {
-                    end = true;
-                    length = i;
-                }
-            }
-            try
-            {
-                // UTF-16 name creation
-                name = new String(chars, 0, length, "UTF-16LE");
-            }
-            catch(UnsupportedEncodingException _ex)
-            {
-                throw new RuntimeException("UTF-16LE not supported, impossible to continue.");
-            }
-            // edited players, without name by default
-            if(name.equals("") && getIndex() >= firstEditIndex)
-            {
-                name = (new StringBuilder("<Edited ")).append(String.valueOf(getIndex() - firstEditIndex)).append(">").toString();
-            }
-            else if(name.equals(""))
-            {
-                if(getIndex() >= firstUnusedIndex)
-                {
-                    // unused player without name
-                    name = (new StringBuilder("<Unused ")).append(String.valueOf(getIndex())).append(">").toString();
-                }
-                else
-                {
-                    // normal player without name, this should not happen
-                    name = (new StringBuilder("<L ")).append(String.valueOf(getIndex())).append(">").toString();
-                }
-            }
+            int begin = getPlayersBegin();
+            int offset = getPlayerNameOffset();
+
+            name = internalReadName(optionFile, begin, offset);
+            if (name.isEmpty())
+                name = handleEmptyName(name);
         }
         return name;
     }
+
+    private int getPlayersBegin() {
+        if(getIndex() >= firstEditIndex)
+            return beginOffsetEdited;
+        else
+            return beginOffset;
+    }
+
+    private int getPlayerNameOffset() {
+        if(getIndex() >= firstEditIndex)
+            return (getIndex() - firstEditIndex) * size;
+        else
+            return getIndex() * size;
+    }
+
+    private String internalReadName(OptionFile optionFile, int begin, int nameOffset) {
+        byte[] chars = new byte[nameNbBytes];
+        int playerOffset = begin + nameOffset;
+        // copies name characters (16 characters, 32 bytes in UTF16)
+        System.arraycopy(optionFile.optionFileData, playerOffset, chars, 0, nameNbBytes);
+        boolean end = false;
+        // name length computation, by searching for the first null character (2 '00' in UTF-16)
+        int length = 0;
+        for(int i = 0; !end && i < chars.length - 1; i += 2)
+            if(chars[i] == 0 && chars[i + 1] == 0)
+            {
+                end = true;
+                length = i;
+            }
+
+        // UTF-16 name creation
+        return new String(chars, 0, length, StandardCharsets.UTF_16LE);
+    }
+
+    private String handleEmptyName(String name) {
+        // edited players, without name by default
+        if(getIndex() >= firstEditIndex)
+        {
+            name = "<Edited " + (getIndex() - firstEditIndex) + ">";
+        }
+        else {
+            if (getIndex() >= firstUnusedIndex)
+                // unused player without name
+                name = "<Unused " + getIndex() + ">";
+            else
+                // normal player without name, this should not happen
+                name = "<L " + getIndex() + ">";
+        }
+        return name;
+    }
+
+    protected void readChildren(OptionFile optionFile) {
+        readStats(optionFile);
+    }
+
+    public void readStats(OptionFile optionFile) {
+        for (PlayerStat playerStat: Stats.ability99) {
+            stats.replace(playerStat, playerStat.readValue(optionFile, getIndex()));
+        }
+    }
+
+    public Map<PlayerStat, Integer> stats;
 
     public static final int minAge = 15;
 
@@ -114,7 +129,7 @@ public class Player extends OptionFileElement {
     public static final int nameTotalLength = 16;
 
     /** total number of bytes for a name */
-    public static final int nameTotalBytes = 32;
+    public static final int nameNbBytes = 32;
 
     public static final int shirtNameTotalLength = 16;
 

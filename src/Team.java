@@ -1,5 +1,4 @@
-import java.io.UnsupportedEncodingException;
-import java.util.Collections;
+import java.nio.charset.StandardCharsets;
 import java.util.Vector;
 
 public class Team extends OptionFileElement {
@@ -10,29 +9,23 @@ public class Team extends OptionFileElement {
 
     @Override
     protected String readName(OptionFile optionFile) {
-        String s = "";
-        int nameLength = 0;
+        String name = "";
+        int length = 0;
+
         // get name address
-        int clubAdr = startNameAddr + getIndex() * size;
-        if (optionFile.optionFileData[clubAdr] != 0) {
+        int nameAddr = startNameAddr + (getIndex() - nationalLimit - 2) * size;
+
+        if (optionFile.optionFileData[nameAddr] != 0) {
             // club name length computation
             for (int i = 0; i <= maxNameLen; i++)
-            {
-                if (nameLength == 0 && optionFile.optionFileData[clubAdr + i] == 0)
-                {
-                    nameLength = i;
-                }
-            }
-            try {
-                s = new String(optionFile.optionFileData, clubAdr, nameLength, "UTF-8");
-            } catch (UnsupportedEncodingException _ex) {
-                throw new RuntimeException("UTF-8 not supported, impossible to continue.");
-            }
+                if (length == 0 && optionFile.optionFileData[nameAddr + i] == 0)
+                    length = i;
+
+            name = new String(optionFile.optionFileData, nameAddr, length, StandardCharsets.UTF_8);
         } else {
-            s = (new StringBuilder("<")).append(String.valueOf(getIndex())).append(">")
-                    .toString();
+            name = "<" + getIndex() +">";
         }
-        return s;
+        return name;
     }
 
     @Override
@@ -40,79 +33,61 @@ public class Team extends OptionFileElement {
         playersIndexes = readPlayersIndexes(optionFile);
     }
 
-    /**
-     * 		(Maybe) get the player number in a team, or a way to obtain it
-     * @param optionfile
-     * @param teamIndex
-     * @param playerIndex	Player index in the team
-     * @return
-     */
+     // (Maybe) get the player number in a team, or a way to obtain it
     private static byte getSlot(OptionFile optionfile, int teamIndex, int playerIndex)
     {
-        return optionfile.optionFileData[beginSlotAddress + size * teamIndex + playerIndex];
+        return optionfile.optionFileData[beginSlotAddress + slotSize * teamIndex + playerIndex];
     }
 
     private Vector<Integer> readPlayersIndexes(OptionFile optionfile) {
-        Vector<Integer> players = new Vector<>();
-//        if (!flag && getIndex() > 63)
-//            getIndex() += 9;
-        // 219 = tous les joueurs
-        if (getIndex() == 219) {
-            // ajout de tous les joueurs dans un vecteur
-            Vector<Player> vector = new Vector<Player>();
-            for (int j = 1; j < 5000; j++)
-                players.add(j);
+        Vector<Integer> playersIndexes = new Vector<>();
+        int nbPlayers = getNbPlayers();
+        int beginPlayerOffset = getBeginPlayerOffset();
+        int teamNum = getTeamNum();
 
-            for (int k = 32768; k < 32952; k++)
-                players.add(k);
+        for (int currPlayer = 0; currPlayer < nbPlayers; currPlayer++)
+        {
+            int playerAdr = beginPlayerOffset + currPlayer * 2;
+            if (getIndex() >= 0 && getIndex() < nationalLimit
+                    || getIndex() >= firstClubIndex && getIndex() < 213)
+                playerAdr = beginPlayerOffset + getSlot(optionfile, teamNum, currPlayer) * 2;
 
-            // tri des joueurs
-//            Collections.sort(vector);
-//            vector.trimToSize();
-//            // placement des joueurs dans la liste
-//            players = new Player[vector.size()];
-//            players = vector.toArray(players);
-        } else {
-            byte nbPlayers;
-            int beginPlayerOffset;
-            int teamOffset;
-            int teamNum;
-            if (getIndex() < nationalLimit)
-            {
-                nbPlayers = nbPlayersNational;
-                teamOffset = getIndex() * nbPlayersNational * 2;
-                beginPlayerOffset = nationalSquadAdr + teamOffset;
-                teamNum = getIndex();
-            }
-            else if (getIndex() == nationalLimit)
-            {
-                nbPlayers = 14;
-                teamOffset = getIndex() * nbPlayersNational * 2;
-                beginPlayerOffset = nationalSquadAdr + teamOffset;
-                teamNum = getIndex();
-            }
-            else
-            {
-                nbPlayers = nbPlayersClub;
-                teamOffset = (getIndex() - firstClubIndex) * nbPlayersClub * 2;
-                beginPlayerOffset = clubSquadAdr + teamOffset;
-                teamNum = getIndex() - 9;
-            }
-
-            for (int playerActu = 0; playerActu < nbPlayers; playerActu++)
-            {
-                int playerAdr = beginPlayerOffset + playerActu * 2;
-                if (getIndex() >= 0 && getIndex() < nationalLimit
-                        || getIndex() >= firstClubIndex && getIndex() < 213)
-                {
-                    playerAdr = beginPlayerOffset + getSlot(optionfile, teamNum, playerActu) * 2;
-                }
-                int numPlayer = Utils.UnsignedbyteToInt(optionfile.optionFileData[playerAdr + 1]) << 8
-                        | Utils.UnsignedbyteToInt(optionfile.optionFileData[playerAdr]);
-                players.add(numPlayer);
-            }
+            int numPlayer = Utils.UnsignedbyteToInt(optionfile.optionFileData[playerAdr + 1]) << 8
+                    | Utils.UnsignedbyteToInt(optionfile.optionFileData[playerAdr]);
+            playersIndexes.add(numPlayer);
         }
-        return players;
+        return playersIndexes;
+    }
+
+    private int getNbPlayers() {
+
+        if (getIndex() < nationalLimit)
+            return nbPlayersNational;
+        else if (getIndex() == nationalLimit)
+            return 14;
+        else
+            return nbPlayersClub;
+    }
+
+    private int getTeamOffset() {
+        if (getIndex() <= nationalLimit)
+            return getIndex() * nbPlayersNational * 2;
+        else
+            return (getIndex() - firstClubIndex) * nbPlayersClub * 2;
+    }
+
+    private int getBeginPlayerOffset() {
+        if (getIndex() <= nationalLimit)
+            return nationalSquadAdr + getTeamOffset();
+        else
+            return clubSquadAdr + getTeamOffset();
+    }
+
+    private int getTeamNum() {
+        if (getIndex() <= nationalLimit)
+            return getIndex();
+        else
+            return getIndex() - 9;
     }
 
     public Vector<Integer> getPlayersIndexes() {
@@ -124,6 +99,9 @@ public class Team extends OptionFileElement {
     public static final int nbTeams = 140;
     public static final int startNameAddr = 0xb7770;
     public static final int size = 88;
+
+    public static final int slotSize = 364;
+
     public static final int maxNameLen = 48;
 
     public final static int nationalSquadAdr = 0xa2334;

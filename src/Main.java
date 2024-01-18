@@ -20,11 +20,41 @@ public class Main {
 //            }
 //        }
 
-        for (int i = 0; i < Team.nbTeams; i++) {
-            Team team = new Team(i);
-            team.read(optionFile);
-            System.out.println(team.getIndex() + " " + team.getName() + " " + team.getPlayersIndexes());
+//        for (int i = Team.nationalLimit + 2; i < Team.nationalLimit + Team.nbTeams; i++) {
+//            Team team = new Team(i);
+//            team.read(optionFile);
+//            System.out.println(team.getIndex() + " " + team.getName() + " " + team.getPlayersIndexes());
+
+//            for (int p: team.getPlayersIndexes()) {
+//                Player player = new Player(p);
+//                player.read(optionFile);
+//                System.out.println(player.getName());
+//            }
+//            System.out.println();
+//        }
+
+        // PSG
+        Team team = new Team(105);
+        team.read(optionFile);
+        System.out.println(team.getIndex() + " " + team.getName() + " " + team.getPlayersIndexes());
+
+        for (int p: team.getPlayersIndexes()) {
+            Player player = new Player(p);
+            player.read(optionFile);
+//            int shotAcc = Stats.readValue(optionFile, player.getIndex(), Stats.shotAcc);
+//            int shotAcc = Stats.shotAcc.readValue(optionFile, player.getIndex());
+            System.out.println(player.getName() + " " + player.stats);
         }
+//
+//        Team team = new Team(Team.nationalLimit + 2);
+//        team.read(optionFile);
+//        System.out.println(team.getName()+ " " + team.getPlayersIndexes());
+//
+//        for (int p: team.getPlayersIndexes()) {
+//            Player player = new Player(p);
+//            player.read(optionFile);
+//            System.out.println(player.getName());
+//        }
 
 //        for(int i = 0; i < Player.totalPlayers; i++) {
 //            Player player = new Player(i);

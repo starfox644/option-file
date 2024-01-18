@@ -60,7 +60,6 @@ public class OptionFile {
             else
                 currentKeyIndex = 0;
         }
-//        return data;
     }
 
     private static void decrypt(byte[] data) {
