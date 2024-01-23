@@ -8,9 +8,9 @@ import java.io.File;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-//        File file = new File("data\\KONAMI-WIN32PES6OPT");
+        File file = new File("data\\KONAMI-WIN32PES6OPT_original");
 //        File file = new File("data\\decrypted");
-        File file = new File("data\\decrypted_from_server");
+//        File file = new File("data\\decrypted_from_server");
 //        File outFile = new File("data\\decrypted");
 
         OptionFile optionFile = new OptionFile();
@@ -56,7 +56,7 @@ public class Main {
         System.out.println(team.getIndex() + " " + team.getName() + " " + team.getPlayersIndexes());
 
         for (Player player: team.getPlayers()) {
-            System.out.println(player.getIndex() + " " + player.getName());
+            System.out.println(player.getIndex() + " " + player.getName() + " " + player.roles);
         }
 
 //        String[] newNames = {"MBappé", "Hakimi", "TOTO", "titi"};

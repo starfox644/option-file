@@ -21,13 +21,10 @@ public class Stats {
 		int offset;
 		// get player offset
 		if(playerIndex >= Player.firstEditIndex)
-		{
 			offset = statsBeginOffsetEdited + (playerIndex - Player.firstEditIndex) * Player.size + playerStat.initialOffset;
-		}
 		else
-		{
 			offset = statsBeginOffset + playerIndex * Player.size + playerStat.initialOffset;
-		}
+
 		// get player stats in 2 bytes
 		int k = Utils.UnsignedbyteToInt(optionfile.optionFileData[offset]) << 8
 				| Utils.UnsignedbyteToInt(optionfile.optionFileData[offset - 1]);

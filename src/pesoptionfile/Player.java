@@ -3,6 +3,7 @@ package pesoptionfile;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 public class Player extends OptionFileElement {
     public Player(int index) {
@@ -141,9 +142,23 @@ public class Player extends OptionFileElement {
         for (PlayerStat playerStat: Stats.ability99) {
             stats.replace(playerStat, playerStat.readValue(optionFile, getIndex()));
         }
+        nationalityCode = Stats.nationality.readValue(optionFile, getIndex());
+        regPosCode = Stats.regPos.readValue(optionFile, getIndex());
+
+        roles = new Vector<>();
+        for (int roleNdx = 0; roleNdx < Stats.roles.length; roleNdx++) {
+            if (Stats.roles[roleNdx].readValue(optionFile, getIndex()) != 0)
+                roles.add(roleNdx);
+        }
     }
 
     public Map<PlayerStat, Integer> stats;
+
+    public int nationalityCode;
+
+    public int regPosCode;
+
+    public Vector<Integer> roles;
 
     public static final int minAge = 15;
 
