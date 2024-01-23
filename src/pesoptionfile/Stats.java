@@ -1,4 +1,4 @@
-/**
+package pesoptionfile; /**
  *  Decompiled by Jad v1.5.8e. Copyright 2001 Pavel Kouznetsov.
  *  Jad home page: http://www.geocities.com/kpdus/jad.html
  *  Decompiler options: packimports(3) 
@@ -6,14 +6,14 @@
 
 /**
  *  Referenced classes of package editor:
- *             Stat, OptionFile
+ *             Stat, pesoptionfile.OptionFile
  */
 public class Stats {
 
 	/**
 	 * 		Reads a player stat in option file.
 	 * 	@param optionfile	Loaded option file.
-	 * 	@param playerIndex	Player index in file.
+	 * 	@param playerIndex	pesoptionfile.Player index in file.
 	 * 	@param playerStat			Stat to read.
 	 */
 	public static int readValue(OptionFile optionfile, int playerIndex, PlayerStat playerStat)
@@ -303,7 +303,7 @@ public class Stats {
 		aggress = new PlayerStat(0, 30, 0, 0x7F, "Aggression");
 		mental = new PlayerStat(0, 31, 0, 0x7F, "Mentality");
 		gkAbil = new PlayerStat(0, 32, 0, 0x7F, "GK");
-		team = new PlayerStat(0, 28, 0, 0x7F, "Team Work");
+		team = new PlayerStat(0, 28, 0, 0x7F, "pesoptionfile.Team Work");
 		ability99 = (new PlayerStat[] {
 				attack, defence, balance, stamina, speed, accel, response, agility, dribAcc, dribSpe, 
 				sPassAcc, sPassSpe, lPassAcc, lPassSpe, shotAcc, shotPow, shotTec, fk, curling, heading, 

@@ -1,0 +1,8 @@
+England pesoptionfile.League: 20 teams
+Ligue 1 (French pesoptionfile.League): 20 teams
+Serie A: 20 teams
+Eredivisie: 18 teams
+Liga Espanola: 20 teams
+Other Leagues A: 19 teams
+Other Leagues B: 5 teams
+Other Leagues C: 18 teams
