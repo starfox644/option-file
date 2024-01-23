@@ -103,9 +103,9 @@ public class Team extends OptionFileElement {
             return getIndex() - 9;
     }
 
-    public void writePlayersNames(OptionFile optionFile, String[] newNames) {
-        for (int nameNdx = 0; nameNdx < newNames.length && nameNdx < players.size(); nameNdx++) {
-            players.get(nameNdx).writeName(optionFile, newNames[nameNdx]);
+    public void writePlayersNames(OptionFile optionFile, Vector<String> newNames) {
+        for (int nameNdx = 0; nameNdx < newNames.size() && nameNdx < players.size(); nameNdx++) {
+            players.get(nameNdx).writeName(optionFile, newNames.get(nameNdx));
         }
     }
 

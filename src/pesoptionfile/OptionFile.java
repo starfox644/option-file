@@ -87,6 +87,12 @@ public class OptionFile {
         }
     }
 
+    public void encrypt() {
+        encrypt(optionFileData);
+        writeCheckSums(optionFileData);
+        convert(optionFileData);
+    }
+
     private static void convert(byte[] data) {
         int currentKeyIndex = 0;
         for(int currentByte = 0; currentByte < LENGTH; currentByte++)

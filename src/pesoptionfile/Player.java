@@ -35,10 +35,20 @@ public class Player extends OptionFileElement {
         return name;
     }
 
+    static String shortName(String name) {
+        String[] parts = name.split(" ");
+        if (parts.length > 1) {
+            return parts[parts.length - 1];
+        }
+        return name;
+    }
+
     public void writeName(OptionFile optionFile, String newName) {
-        int length = newName.length();
+        if (newName.length() > nameMaxLength)
+            newName = shortName(newName);
+
         // arguments check : empty player not allowed, maximal size for name
-        if(getIndex() != 0 && length <= nameMaxLength)
+        if(getIndex() != 0 && newName.length() <= nameMaxLength)
         {
             byte finalName[] = new byte[nameNbBytes];
             byte gotName[];

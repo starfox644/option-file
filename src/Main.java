@@ -9,22 +9,26 @@ import java.io.File;
 public class Main {
     public static void main(String[] args) {
 //        File file = new File("data\\KONAMI-WIN32PES6OPT");
-        File file = new File("data\\decrypted");
-        File outFile = new File("data\\decrypted");
+//        File file = new File("data\\decrypted");
+        File file = new File("data\\decrypted_from_server");
+//        File outFile = new File("data\\decrypted");
+
         OptionFile optionFile = new OptionFile();
         optionFile.read(file);
 
-        File testFile = new File("data\\encryptedOriginal");
-        optionFile.encryptedWrite(testFile);
-//        System.out.printf("0x%02X%n", optionFile.getHeader());
-
-//        optionFile.decryptedWrite(outFile);
+//        pesoptionfile.League league = new pesoptionfile.League(1);
+//        league.read(optionFile);
+//        System.out.println(league.getIndex() + " " + league.getName());
+//
+//        for (pesoptionfile.Team team: league.getTeams()) {
+//            System.out.println("\t" + team.getIndex() + " " + team.getName());
+//        }
 
 //        for (int i = 0; i < pesoptionfile.League.nbLeagues; i++) {
 //            pesoptionfile.League league = new pesoptionfile.League(i);
 //            league.read(optionFile);
 //            System.out.println(league.getIndex() + " " + league.getName());
-//
+
 //            for (pesoptionfile.Team team: league.getTeams()) {
 //                System.out.println("\t" + team.getIndex() + " " + team.getName());
 //            }
@@ -44,7 +48,10 @@ public class Main {
 //        }
 
 //         PSG
-        Team team = new Team(105);
+//        Team team = new Team(105);
+
+        // Arsenal
+        Team team = new Team(73);
         team.read(optionFile);
         System.out.println(team.getIndex() + " " + team.getName() + " " + team.getPlayersIndexes());
 
@@ -52,15 +59,15 @@ public class Main {
             System.out.println(player.getIndex() + " " + player.getName());
         }
 
-        String[] newNames = {"MBappé", "Hakimi", "TOTO", "titi"};
-        team.writePlayersNames(optionFile, newNames);
-        Team newTeam = new Team(105);
-        team.read(optionFile);
-
-        System.out.println("New names");
-        for (Player player: team.getPlayers()) {
-            System.out.println(player.getIndex() + " " + player.getName());
-        }
+//        String[] newNames = {"MBappé", "Hakimi", "TOTO", "titi"};
+//        team.writePlayersNames(optionFile, newNames);
+//        Team newTeam = new Team(105);
+//        team.read(optionFile);
+//
+//        System.out.println("New names");
+//        for (Player player: team.getPlayers()) {
+//            System.out.println(player.getIndex() + " " + player.getName());
+//        }
 
 //        Player frau = new Player(2138);
 //        frau.read(optionFile);

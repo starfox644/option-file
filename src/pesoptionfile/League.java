@@ -64,7 +64,7 @@ public class League extends OptionFileElement {
         int start = leagueStartIndexes[getIndex()];
         int nb = leagueTeamNumbers[getIndex()];
         for (int teamIndex = start; teamIndex < start + nb ; teamIndex++) {
-            Team team = new Team(teamIndex + 73);
+            Team team = new Team(teamIndex + 53);
             team.read(optionFile);
             teams.add(team);
         }
