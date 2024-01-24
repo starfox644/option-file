@@ -1,17 +1,16 @@
 package pesoptionfile;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Vector;
 
 public class League extends OptionFileElement {
 
-    public League(int index) {
-        super(index);
+    public League(OptionFile optionFile, int index) {
+        super(optionFile, index);
         teams = new Vector<>();
     }
 
-    @Override
-    protected String readName(OptionFile optionFile) {
+    public String getName() {
         // league name address
         int nameAdr = startAdr + getIndex() * fieldLen;
         int len = 0;
@@ -21,42 +20,31 @@ public class League extends OptionFileElement {
         {
             throw new IllegalArgumentException("Illegal league index : " + getIndex() + ", must not exceed " + (nbLeagues-1));
         }
-        if (optionFile.optionFileData[nameAdr] != 0) {
+        if (getOptionFile().optionFileData[nameAdr] != 0) {
             // name length computation, the name ends with the value 0
             tempLen = 0;
-            while(tempLen < maxLen && optionFile.optionFileData[nameAdr + tempLen] != 0)
+            while(tempLen < maxLen && getOptionFile().optionFileData[nameAdr + tempLen] != 0)
             {
                 tempLen++;
             }
             len = tempLen;
-            try
-            {
-                name = new String(optionFile.optionFileData, nameAdr, len, "UTF-8");
-            }
-            catch(UnsupportedEncodingException e)
-            {
-                throw new RuntimeException("UTF-8 not supported, impossible to continue.");
-            }
+            name = new String(getOptionFile().optionFileData, nameAdr, len, StandardCharsets.UTF_8);
         }
         else if (getIndex() >= beginCupIndex)
         {
             name = def[getIndex() - beginCupIndex];
             if (getIndex() < 27)
-            {
-                name = (new StringBuilder(String.valueOf(name))).append(" Cup")
-                        .toString();
-            }
+                name += " Cup";
         }
         else
         {
-            name = (new StringBuilder("<")).append(String.valueOf(getIndex())).append(">")
-                    .toString();
+            name = "<" + getIndex() + ">";
         }
         return name;
     }
 
     @Override
-    protected void readChildren(OptionFile optionFile) {
+    protected void readChildren() {
         teams.clear();
         if (getIndex() >= leagueStartIndexes.length)
             return;
@@ -64,8 +52,7 @@ public class League extends OptionFileElement {
         int start = leagueStartIndexes[getIndex()];
         int nb = leagueTeamNumbers[getIndex()];
         for (int teamIndex = start; teamIndex < start + nb ; teamIndex++) {
-            Team team = new Team(teamIndex + 53);
-            team.read(optionFile);
+            Team team = new Team(getOptionFile(), teamIndex + 53);
             teams.add(team);
         }
     }

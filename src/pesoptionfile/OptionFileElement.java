@@ -2,30 +2,28 @@ package pesoptionfile;
 
 public abstract class OptionFileElement {
 
-    public OptionFileElement(int index) {
+    public OptionFileElement(OptionFile optionFile, int index) {
+        this.optionFile = optionFile;
         this.index = index;
-        this.name = "";
+        read();
     }
 
-    public void read(OptionFile optionFile) {
-        name = readName(optionFile);
-        readChildren(optionFile);
+    public void read() {
+        readChildren();
     }
 
-    protected abstract String readName(OptionFile optionFile);
+    protected void readChildren() {}
 
-    protected void readChildren(OptionFile optionFile) {}
-
-    private final int index;
+    public OptionFile getOptionFile() {return optionFile;}
 
     public int getIndex() {
         return index;
     }
 
-    public String getName() {
-        return name;
-    }
+    public abstract String getName();
 
-    private String name;
+    private final int index;
+
+    private final OptionFile optionFile;
 
 }

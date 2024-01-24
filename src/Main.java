@@ -1,6 +1,4 @@
-import pesoptionfile.OptionFile;
-import pesoptionfile.Player;
-import pesoptionfile.Team;
+import pesoptionfile.*;
 
 import java.io.File;
 
@@ -51,12 +49,18 @@ public class Main {
 //        Team team = new Team(105);
 
         // Arsenal
-        Team team = new Team(73);
-        team.read(optionFile);
+        Team team = new Team(optionFile, 73);
         System.out.println(team.getIndex() + " " + team.getName() + " " + team.getPlayersIndexes());
 
-        for (Player player: team.getPlayers()) {
-            System.out.println(player.getIndex() + " " + player.getName() + " " + player.roles);
+        PlayerData newPlayer = new PlayerData();
+        newPlayer.setName("Victor");
+        newPlayer.setAge(22);
+
+        OptionFilePlayer playerToWrite = team.getPlayers().get(1);
+        playerToWrite.writeDataFrom(newPlayer);
+
+        for (OptionFilePlayer player: team.getPlayers()) {
+            System.out.println(player.getIndex() + " " + player.getName() + " " + player.getStatValue(Stats.age));
         }
 
 //        String[] newNames = {"MBappé", "Hakimi", "TOTO", "titi"};

@@ -5,25 +5,25 @@ import java.util.Vector;
 
 public class Team extends OptionFileElement {
 
-    public Team(int index) {
-        super(index);
+    public Team(OptionFile optionFile, int index) {
+        super(optionFile, index);
     }
 
     @Override
-    protected String readName(OptionFile optionFile) {
+    public String getName() {
         String name = "";
         int length = 0;
 
         // get name address
         int nameAddr = startNameAddr + (getIndex() - nationalLimit - 2) * size;
 
-        if (optionFile.optionFileData[nameAddr] != 0) {
+        if (getOptionFile().optionFileData[nameAddr] != 0) {
             // club name length computation
             for (int i = 0; i <= maxNameLen; i++)
-                if (length == 0 && optionFile.optionFileData[nameAddr + i] == 0)
+                if (length == 0 && getOptionFile().optionFileData[nameAddr + i] == 0)
                     length = i;
 
-            name = new String(optionFile.optionFileData, nameAddr, length, StandardCharsets.UTF_8);
+            name = new String(getOptionFile().optionFileData, nameAddr, length, StandardCharsets.UTF_8);
         } else {
             name = "<" + getIndex() +">";
         }
@@ -31,18 +31,18 @@ public class Team extends OptionFileElement {
     }
 
     @Override
-    protected void readChildren(OptionFile optionFile) {
-        playersIndexes = readPlayersIndexes(optionFile);
-        players = readPlayers(optionFile);
+    protected void readChildren() {
+        playersIndexes = readPlayersIndexes();
+        players = readPlayers();
     }
 
      // (Maybe) get the player number in a team, or a way to obtain it
-    private static byte getSlot(OptionFile optionfile, int teamIndex, int playerIndex)
+    private byte getSlot(int teamIndex, int playerIndex)
     {
-        return optionfile.optionFileData[beginSlotAddress + slotSize * teamIndex + playerIndex];
+        return getOptionFile().optionFileData[beginSlotAddress + slotSize * teamIndex + playerIndex];
     }
 
-    private Vector<Integer> readPlayersIndexes(OptionFile optionfile) {
+    private Vector<Integer> readPlayersIndexes() {
         Vector<Integer> playersIndexes = new Vector<>();
         int nbPlayers = getNbPlayers();
         int beginPlayerOffset = getBeginPlayerOffset();
@@ -53,20 +53,19 @@ public class Team extends OptionFileElement {
             int playerAdr = beginPlayerOffset + currPlayer * 2;
             if (getIndex() >= 0 && getIndex() < nationalLimit
                     || getIndex() >= firstClubIndex && getIndex() < 213)
-                playerAdr = beginPlayerOffset + getSlot(optionfile, teamNum, currPlayer) * 2;
+                playerAdr = beginPlayerOffset + getSlot(teamNum, currPlayer) * 2;
 
-            int numPlayer = Utils.UnsignedbyteToInt(optionfile.optionFileData[playerAdr + 1]) << 8
-                    | Utils.UnsignedbyteToInt(optionfile.optionFileData[playerAdr]);
+            int numPlayer = Utils.UnsignedbyteToInt(getOptionFile().optionFileData[playerAdr + 1]) << 8
+                    | Utils.UnsignedbyteToInt(getOptionFile().optionFileData[playerAdr]);
             playersIndexes.add(numPlayer);
         }
         return playersIndexes;
     }
 
-    private Vector<Player> readPlayers(OptionFile optionFile) {
-        Vector<Player> players = new Vector<>();
+    private Vector<OptionFilePlayer> readPlayers() {
+        Vector<OptionFilePlayer> players = new Vector<>();
         for (int playerIndex: playersIndexes) {
-            pesoptionfile.Player player = new pesoptionfile.Player(playerIndex);
-            player.read(optionFile);
+            OptionFilePlayer player = new OptionFilePlayer(getOptionFile(), playerIndex);
             players.add(player);
         }
         return players;
@@ -103,9 +102,9 @@ public class Team extends OptionFileElement {
             return getIndex() - 9;
     }
 
-    public void writePlayersNames(OptionFile optionFile, Vector<String> newNames) {
+    public void writePlayersNames(Vector<String> newNames) {
         for (int nameNdx = 0; nameNdx < newNames.size() && nameNdx < players.size(); nameNdx++) {
-            players.get(nameNdx).writeName(optionFile, newNames.get(nameNdx));
+            players.get(nameNdx).writeName(newNames.get(nameNdx));
         }
     }
 
@@ -115,11 +114,11 @@ public class Team extends OptionFileElement {
 
     private Vector<Integer> playersIndexes;
 
-    public Vector<Player> getPlayers() {
+    public Vector<OptionFilePlayer> getPlayers() {
         return players;
     }
 
-    private Vector<Player> players;
+    private Vector<OptionFilePlayer> players;
 
     public static final int nbTeams = 140;
     public static final int startNameAddr = 0xb7770;

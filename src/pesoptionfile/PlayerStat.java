@@ -53,10 +53,10 @@ public class PlayerStat {
     public String name;
 
     public static int getPlayerStatsOffset(int playerIndex) {
-        if(playerIndex >= Player.firstEditIndex)
-            return Stats.statsBeginOffsetEdited + (playerIndex - Player.firstEditIndex) * Player.size;
+        if(playerIndex >= OptionFilePlayer.firstEditIndex)
+            return Stats.statsBeginOffsetEdited + (playerIndex - OptionFilePlayer.firstEditIndex) * OptionFilePlayer.size;
         else
-            return Stats.statsBeginOffset + playerIndex * Player.size;
+            return Stats.statsBeginOffset + playerIndex * OptionFilePlayer.size;
     }
 
     public int readValue(OptionFile optionfile, int playerIndex)
@@ -74,6 +74,24 @@ public class PlayerStat {
         k &= mask;
 
         return k;
+    }
+
+    public void writeValue(OptionFile optionfile, int playerIndex, int newValue) {
+        int offset = getPlayerStatsOffset(playerIndex) + initialOffset;
+        // read the existing bytes for not changing the other values that can be in these ones
+        int oldValue = Utils.UnsignedbyteToInt(optionfile.optionFileData[offset]) << 8
+                | Utils.UnsignedbyteToInt(optionfile.optionFileData[offset - 1]);
+        // creating the save mask, which allows to save the other bits of the 2 bytes
+        int saveMask = 0xffff & ~(mask << shift);
+        // put 0s in the value to change
+        oldValue &= saveMask;
+        // placing new value in the 2 bytes
+        newValue &= mask;
+        newValue <<= shift;
+        newValue = oldValue | newValue;
+        // writing the 2 bytes with the new value and the saved bits
+        optionfile.optionFileData[offset - 1] = Utils.integerToUnsignedByte(newValue & 0xff);
+        optionfile.optionFileData[offset] = Utils.integerToUnsignedByte(newValue >>> 8);
     }
 
     public String toString() {
